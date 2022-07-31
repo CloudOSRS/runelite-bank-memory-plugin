@@ -9,7 +9,7 @@ repositories {
     mavenCentral()
 }
 
-def runeLiteVersion = '1.8.9'
+def runeLiteVersion = '1.8.29'
 
 dependencies {
     compileOnly group: 'net.runelite', name:'client', version: runeLiteVersion
@@ -28,8 +28,8 @@ dependencies {
     testImplementation group: 'com.google.inject.extensions', name: 'guice-testlib', version: '4.1.0'
 }
 
-group = 'com.bankmemory'
-version = '1.2.0'
+group = 'com.groupbankmemory'
+version = '1.0.0'
 sourceCompatibility = '1.8'
 
 tasks.withType(JavaCompile) {
