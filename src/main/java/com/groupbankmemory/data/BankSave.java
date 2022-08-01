@@ -15,99 +15,110 @@ import net.runelite.api.ItemID;
 import net.runelite.client.game.ItemManager;
 
 @Value
-public class BankSave {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss, d MMM uuuu");
-    private static final SaferUsernameFunction SAFER_USERNAME = new SaferUsernameFunction();
-    private static final long ID_BASE = System.currentTimeMillis();
-    private static final AtomicInteger idIncrementer = new AtomicInteger();
+public class BankSave
+{
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss, d MMM uuuu");
+	private static final SaferUsernameFunction SAFER_USERNAME = new SaferUsernameFunction();
+	private static final long ID_BASE = System.currentTimeMillis();
+	private static final AtomicInteger idIncrementer = new AtomicInteger();
 
-    private static final int NULL_ITEM_ID = -1;
+	private static final int NULL_ITEM_ID = -1;
 
-    long id;
-    String dateTimeString;
-    String userName;
-    @Nullable String saveName;
+	long id;
+	String dateTimeString;
+	String userName;
+	@Nullable String saveName;
 	InventoryID inventoryID;
-    ImmutableList<BankItem> itemData;
+	ImmutableList<BankItem> itemData;
 
-    @VisibleForTesting
-    public BankSave(
-            String userName,
-            @Nullable String saveName,
-            String dateTimeString,
+	@VisibleForTesting
+	public BankSave(
+			String userName,
+			@Nullable String saveName,
+			String dateTimeString,
 			InventoryID inventoryID,
-            ImmutableList<BankItem> itemData) {
-        id = ID_BASE + idIncrementer.incrementAndGet();
-        this.userName = userName;
-        this.saveName = saveName;
-        this.dateTimeString = dateTimeString;
+			ImmutableList<BankItem> itemData)
+	{
+		id = ID_BASE + idIncrementer.incrementAndGet();
+		this.userName = userName;
+		this.saveName = saveName;
+		this.dateTimeString = dateTimeString;
 		this.inventoryID = inventoryID;
-        this.itemData = itemData;
-    }
+		this.itemData = itemData;
+	}
 
-    public static BankSave fromCurrentBank(
-            String userName,
-            ItemContainer bank,
+	public static BankSave fromCurrentBank(
+			String userName,
+			ItemContainer bank,
 			InventoryID inventoryID,
-            ItemManager itemManager) {
-        Objects.requireNonNull(bank);
-        net.runelite.api.Item[] contents = bank.getItems();
-        ImmutableList.Builder<BankItem> itemData = ImmutableList.builder();
+			ItemManager itemManager)
+	{
+		Objects.requireNonNull(bank);
+		net.runelite.api.Item[] contents = bank.getItems();
+		ImmutableList.Builder<BankItem> itemData = ImmutableList.builder();
 
-        for (net.runelite.api.Item item : contents) {
-            int idInBank = item.getId();
-            int canonId = itemManager.canonicalize(idInBank);
-            if (idInBank != canonId) {
-                // It's just a placeholder
-                continue;
-            } else if (isItemToClean(idInBank)) {
-                continue;
-            }
+		for (net.runelite.api.Item item : contents)
+		{
+			int idInBank = item.getId();
+			int canonId = itemManager.canonicalize(idInBank);
+			if (idInBank != canonId)
+			{
+				// It's just a placeholder
+				continue;
+			}
+			else if (isItemToClean(idInBank))
+			{
+				continue;
+			}
 
-            itemData.add(new BankItem(canonId, item.getQuantity()));
-        }
-        String timeString = DATE_FORMATTER.format(ZonedDateTime.now());
-        return new BankSave(userName, null, timeString, inventoryID, itemData.build());
-    }
+			itemData.add(new BankItem(canonId, item.getQuantity()));
+		}
+		String timeString = DATE_FORMATTER.format(ZonedDateTime.now());
+		return new BankSave(userName, null, timeString, inventoryID, itemData.build());
+	}
 
-    private static boolean isItemToClean(int itemId) {
-        return itemId == NULL_ITEM_ID || itemId == ItemID.BANK_FILLER;
-    }
+	private static boolean isItemToClean(int itemId)
+	{
+		return itemId == NULL_ITEM_ID || itemId == ItemID.BANK_FILLER;
+	}
 
-    public static BankSave snapshotFromExistingBank(String newName, BankSave existingBank) {
-        Objects.requireNonNull(newName);
-        return new BankSave(
-                existingBank.userName,
-                newName,
-                existingBank.dateTimeString,
+	public static BankSave snapshotFromExistingBank(String newName, BankSave existingBank)
+	{
+		Objects.requireNonNull(newName);
+		return new BankSave(
+				existingBank.userName,
+				newName,
+				existingBank.dateTimeString,
 				existingBank.inventoryID,
-                existingBank.itemData);
-    }
+				existingBank.itemData);
+	}
 
-    public static BankSave cleanItemData(BankSave existingBank) {
-        Objects.requireNonNull(existingBank);
+	public static BankSave cleanItemData(BankSave existingBank)
+	{
+		Objects.requireNonNull(existingBank);
 
-        ImmutableList<BankItem> cleanItemData = existingBank.itemData.stream()
-                .filter(i -> !isItemToClean(i.getItemId()))
-                .collect(ImmutableList.toImmutableList());
+		ImmutableList<BankItem> cleanItemData = existingBank.itemData.stream()
+				.filter(i -> !isItemToClean(i.getItemId()))
+				.collect(ImmutableList.toImmutableList());
 
-        return new BankSave(
-                existingBank.userName,
-                existingBank.saveName,
-                existingBank.dateTimeString,
+		return new BankSave(
+				existingBank.userName,
+				existingBank.saveName,
+				existingBank.dateTimeString,
 				existingBank.inventoryID,
-                cleanItemData);
-    }
+				cleanItemData);
+	}
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("username", SAFER_USERNAME.from(userName))
-                .add("dateTimeString", dateTimeString)
-                .add("saveName", saveName)
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("id", id)
+				.add("username", SAFER_USERNAME.from(userName))
+				.add("dateTimeString", dateTimeString)
+				.add("saveName", saveName)
 				.add("inventoryId", inventoryID)
-                .add("itemData", itemData)
-                .toString();
-    }
+				.add("itemData", itemData)
+				.toString();
+	}
 }

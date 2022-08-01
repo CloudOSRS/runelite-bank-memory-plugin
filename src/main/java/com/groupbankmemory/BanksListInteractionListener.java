@@ -1,7 +1,8 @@
 package com.groupbankmemory;
 
-public interface BanksListInteractionListener {
-    void selectedToOpen(BanksListEntry save);
+public interface BanksListInteractionListener
+{
+	void selectedToOpen(BanksListEntry save);
 
-    void selectedToDelete(BanksListEntry save);
+	void selectedToDelete(BanksListEntry save);
 }
