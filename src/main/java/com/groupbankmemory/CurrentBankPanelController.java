@@ -22,57 +22,71 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.AsyncBufferedImage;
 
 @Slf4j
-public class CurrentBankPanelController {
-    @Inject private Client client;
-    @Inject private ClientThread clientThread;
-    @Inject private ItemManager itemManager;
-    @Inject private PluginDataStore dataStore;
+public class CurrentBankPanelController
+{
+	@Inject private Client client;
+	@Inject private ClientThread clientThread;
+	@Inject private ItemManager itemManager;
+	@Inject private PluginDataStore dataStore;
 
-    private BankViewPanel panel;
+	private BankViewPanel panel;
 
-    @Nullable private BankSave latestDisplayedData = null;
+	@Nullable private BankSave latestDisplayedData = null;
 
-    public void startUp(BankViewPanel panel) {
-        assert client.isClientThread();
+	public void startUp(BankViewPanel panel)
+	{
+		assert client.isClientThread();
 
-        this.panel = panel;
+		this.panel = panel;
 
-        if (client.getGameState() == GameState.LOGGED_IN) {
-            updateDisplayForCurrentAccount();
-        } else {
-            SwingUtilities.invokeLater(panel::displayNoDataMessage);
-        }
-    }
+		if (client.getGameState() == GameState.LOGGED_IN)
+		{
+			updateDisplayForCurrentAccount();
+		}
+		else
+		{
+			SwingUtilities.invokeLater(panel::displayNoDataMessage);
+		}
+	}
 
-    public void onGameStateChanged(GameStateChanged gameStateChanged) {
-        assert client.isClientThread();
+	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	{
+		assert client.isClientThread();
 
-        if (gameStateChanged.getGameState() != GameState.LOGGED_IN) {
-            return;
-        }
-        updateDisplayForCurrentAccount();
-    }
+		if (gameStateChanged.getGameState() != GameState.LOGGED_IN)
+		{
+			return;
+		}
+		updateDisplayForCurrentAccount();
+	}
 
-    private void updateDisplayForCurrentAccount() {
-        Optional<GroupBankSave> existingSave = dataStore.getDataForCurrentBank(client.getUsername());
-        if (existingSave.isPresent()) {
-            handleBankSave(existingSave.get().getBankSaves().get(0));
-        } else {
-            latestDisplayedData = null;
-            SwingUtilities.invokeLater(panel::displayNoDataMessage);
-        }
-    }
+	private void updateDisplayForCurrentAccount()
+	{
+		Optional<GroupBankSave> existingSave = dataStore.getDataForCurrentBank(client.getUsername());
+		if (existingSave.isPresent())
+		{
+			handleBankSave(existingSave.get().getBankSaves().get(0));
+		}
+		else
+		{
+			latestDisplayedData = null;
+			SwingUtilities.invokeLater(panel::displayNoDataMessage);
+		}
+	}
 
-    public void handleBankSave(BankSave newSave) {
-        assert client.isClientThread();
+	public void handleBankSave(BankSave newSave)
+	{
+		assert client.isClientThread();
 
-        dataStore.saveAsCurrentBank(newSave);
+		dataStore.saveAsCurrentBank(newSave);
 
-        boolean shouldReset = isBankIdentityDifferentToLastDisplayed(newSave);
-        boolean shouldUpdateItemsDisplay = shouldReset || isItemDataNew(newSave);
-        List<ItemListEntry> items = new ArrayList<>();
-        if (shouldUpdateItemsDisplay) {
-			dataStore.getDataForCurrentBank(client.getUsername()).ifPresent(gbs -> {
+		boolean shouldReset = isBankIdentityDifferentToLastDisplayed(newSave);
+		boolean shouldUpdateItemsDisplay = shouldReset || isItemDataNew(newSave);
+		List<ItemListEntry> items = new ArrayList<>();
+		if (shouldUpdateItemsDisplay)
+		{
+			dataStore.getDataForCurrentBank(client.getUsername()).ifPresent(gbs ->
+			{
 				for (BankSave s : gbs.getBankSaves() /* GroupBankSave */)
 				{
 					for (BankItem i : s.getItemData())
@@ -85,30 +99,35 @@ public class CurrentBankPanelController {
 					}
 				}
 			});
-            // Get all the data we need for the UI on this thread (the game thread)
-            // Doing it on the EDT seems to cause random crashes & NPEs
+			// Get all the data we need for the UI on this thread (the game thread)
+			// Doing it on the EDT seems to cause random crashes & NPEs
 
-        }
-        SwingUtilities.invokeLater(() -> {
-            if (shouldReset) {
-                panel.reset();
-            }
-            panel.updateTimeDisplay(newSave.getDateTimeString());
-            if (shouldUpdateItemsDisplay) {
-                panel.displayItemListings(items, true);
-            }
-        });
-        latestDisplayedData = newSave;
-    }
+		}
+		SwingUtilities.invokeLater(() ->
+		{
+			if (shouldReset) {
+				panel.reset();
+			}
+			panel.updateTimeDisplay(newSave.getDateTimeString());
+			if (shouldUpdateItemsDisplay)
+			{
+				panel.displayItemListings(items, true);
+			}
+		});
+		latestDisplayedData = newSave;
+	}
 
-    private boolean isBankIdentityDifferentToLastDisplayed(BankSave newSave) {
-        if (latestDisplayedData == null) {
-            return true;
-        }
-        return latestDisplayedData.getUserName().equalsIgnoreCase(newSave.getUserName());
-    }
+	private boolean isBankIdentityDifferentToLastDisplayed(BankSave newSave)
+	{
+		if (latestDisplayedData == null)
+		{
+			return true;
+		}
+		return latestDisplayedData.getUserName().equalsIgnoreCase(newSave.getUserName());
+	}
 
-    private boolean isItemDataNew(BankSave newSave) {
-        return latestDisplayedData == null || !latestDisplayedData.getItemData().equals(newSave.getItemData());
-    }
+	private boolean isItemDataNew(BankSave newSave)
+	{
+		return latestDisplayedData == null || !latestDisplayedData.getItemData().equals(newSave.getItemData());
+	}
 }

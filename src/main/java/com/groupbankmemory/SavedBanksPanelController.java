@@ -17,92 +17,94 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemManager;
 
 @Slf4j
-public class SavedBanksPanelController {
+public class SavedBanksPanelController
+{
+	@Inject private Client client;
+	@Inject private ClientThread clientThread;
+	@Inject private ItemManager itemManager;
+	@Inject private PluginDataStore dataStore;
 
-    @Inject private Client client;
-    @Inject private ClientThread clientThread;
-    @Inject private ItemManager itemManager;
-    @Inject private PluginDataStore dataStore;
+	private BankSavesTopPanel topPanel;
+	private ImageIcon casketIcon;
+	private ImageIcon notedCasketIcon;
+	private final AtomicBoolean workingToOpenBank = new AtomicBoolean();
+	private DataStoreListener dataStoreListener;
+	@Nullable BankSave bankForClipboardAction;
 
-    private BankSavesTopPanel topPanel;
-    private ImageIcon casketIcon;
-    private ImageIcon notedCasketIcon;
-    private final AtomicBoolean workingToOpenBank = new AtomicBoolean();
-    private DataStoreListener dataStoreListener;
-    @Nullable BankSave bankForClipboardAction;
+	public void startUp(BankSavesTopPanel topPanel)
+	{
+		assert SwingUtilities.isEventDispatchThread();
 
-    public void startUp(BankSavesTopPanel topPanel) {
-        assert SwingUtilities.isEventDispatchThread();
+		this.topPanel = topPanel;
+		topPanel.setBanksListInteractionListener(new BanksListInteractionListenerImpl());
+		casketIcon = new ImageIcon(itemManager.getImage(405));
+		notedCasketIcon = new ImageIcon(itemManager.getImage(406));
 
-        this.topPanel = topPanel;
-        topPanel.setBanksListInteractionListener(new BanksListInteractionListenerImpl());
-        casketIcon = new ImageIcon(itemManager.getImage(405));
-        notedCasketIcon = new ImageIcon(itemManager.getImage(406));
+		topPanel.displayBanksListPanel();
+		updateCurrentBanksList();
 
-        topPanel.displayBanksListPanel();
-        updateCurrentBanksList();
+		dataStoreListener = new DataStoreListener();
+		dataStore.addListener(dataStoreListener);
+	}
 
-        dataStoreListener = new DataStoreListener();
-        dataStore.addListener(dataStoreListener);
-    }
+	// Gets called on EDT and on game client thread
+	private void updateCurrentBanksList() {
+		List<BanksListEntry> saves = new ArrayList<>();
+		DisplayNameMapper nameMapper = dataStore.getDisplayNameMapper();
 
-    // Gets called on EDT and on game client thread
-    private void updateCurrentBanksList() {
-        List<BanksListEntry> saves = new ArrayList<>();
-        DisplayNameMapper nameMapper = dataStore.getDisplayNameMapper();
+		Runnable updateList = () -> topPanel.updateBanksList(saves);
+		if (SwingUtilities.isEventDispatchThread())
+		{
+			updateList.run();
+		}
+		else
+		{
+			SwingUtilities.invokeLater(updateList);
+		}
+	}
 
-//        for (BankSave save : dataStore.getCurrentBanksList()) {
-//            String displayName = nameMapper.map(save.getUserName());
-//            saves.add(new BanksListEntry(
-//                    save.getId(), casketIcon, save.getWorldType(), "Current bank", displayName, save.getDateTimeString()));
-//        }
-//        for (BankSave save : dataStore.getSnapshotBanksList()) {
-//            String displayName = nameMapper.map(save.getUserName());
-//            saves.add(new BanksListEntry(
-//                    save.getId(), notedCasketIcon, save.getWorldType(), save.getSaveName(), displayName, save.getDateTimeString()));
-//        }
+	public void shutDown()
+	{
+		dataStore.removeListener(dataStoreListener);
+	}
 
-        Runnable updateList = () -> topPanel.updateBanksList(saves);
-        if (SwingUtilities.isEventDispatchThread()) {
-            updateList.run();
-        } else {
-            SwingUtilities.invokeLater(updateList);
-        }
-    }
+	private class BanksListInteractionListenerImpl implements BanksListInteractionListener
+	{
+		@Override
+		public void selectedToOpen(BanksListEntry save)
+		{
+			if (workingToOpenBank.get())
+			{
+				return;
+			}
+			workingToOpenBank.set(true);
+		}
 
-    public void shutDown() {
-        dataStore.removeListener(dataStoreListener);
-    }
+		@Override
+		public void selectedToDelete(BanksListEntry save)
+		{
+			dataStore.deleteBankSaveWithId(save.getSaveId());
+		}
+	}
 
-    private class BanksListInteractionListenerImpl implements BanksListInteractionListener {
-        @Override
-        public void selectedToOpen(BanksListEntry save) {
-            if (workingToOpenBank.get()) {
-                return;
-            }
-            workingToOpenBank.set(true);
-        }
+	private class DataStoreListener implements DataStoreUpdateListener
+	{
+		@Override
+		public void currentBanksListChanged()
+		{
+			updateCurrentBanksList();
+		}
 
-        @Override
-        public void selectedToDelete(BanksListEntry save) {
-            dataStore.deleteBankSaveWithId(save.getSaveId());
-        }
-    }
+		@Override
+		public void snapshotBanksListChanged()
+		{
+			updateCurrentBanksList();
+		}
 
-    private class DataStoreListener implements DataStoreUpdateListener {
-        @Override
-        public void currentBanksListChanged() {
-            updateCurrentBanksList();
-        }
-
-        @Override
-        public void snapshotBanksListChanged() {
-            updateCurrentBanksList();
-        }
-
-        @Override
-        public void displayNameMapUpdated() {
-            updateCurrentBanksList();
-        }
-    }
+		@Override
+		public void displayNameMapUpdated()
+		{
+			updateCurrentBanksList();
+		}
+	}
 }

@@ -34,112 +34,119 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CurrentBankPanelControllerTest {
-    @Mock @Bind private Client client;
-    @Mock @Bind private ItemManager itemManager;
-    @Mock @Bind private PluginDataStore dataStore;
-    @Mock private BankViewPanel panel;
+public class CurrentBankPanelControllerTest
+{
+	@Mock @Bind private Client client;
+	@Mock @Bind private ItemManager itemManager;
+	@Mock @Bind private PluginDataStore dataStore;
+	@Mock private BankViewPanel panel;
 
-    @Inject private CurrentBankPanelController currentBankPanelController;
+	@Inject private CurrentBankPanelController currentBankPanelController;
 
-    @Mock private AsyncBufferedImage coinsIcon;
-    @Mock private AsyncBufferedImage burntLobsterIcon;
+	@Mock private AsyncBufferedImage coinsIcon;
+	@Mock private AsyncBufferedImage burntLobsterIcon;
 
-    @Before
-    public void before() {
-        Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
-        when(client.isClientThread()).thenReturn(true);
-        when(client.getWorldType()).thenReturn(EnumSet.of(WorldType.MEMBERS));
-        ItemComposition coins = mockItemComposition("Coins", 1);
-        ItemComposition burntLobster = mockItemComposition("Burnt lobster", 10);
-        when(itemManager.getItemComposition(0)).thenReturn(coins);
-        when(itemManager.getItemComposition(2)).thenReturn(burntLobster);
-        when(itemManager.getImage(eq(0), anyInt(), anyBoolean())).thenReturn(coinsIcon);
-        when(itemManager.getImage(eq(2), anyInt(), anyBoolean())).thenReturn(burntLobsterIcon);
-        when(itemManager.getItemPrice(0)).thenReturn(1);
-        when(itemManager.getItemPrice(2)).thenReturn(100);
-    }
+	@Before
+	public void before()
+	{
+		Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
+		when(client.isClientThread()).thenReturn(true);
+		when(client.getWorldType()).thenReturn(EnumSet.of(WorldType.MEMBERS));
+		ItemComposition coins = mockItemComposition("Coins", 1);
+		ItemComposition burntLobster = mockItemComposition("Burnt lobster", 10);
+		when(itemManager.getItemComposition(0)).thenReturn(coins);
+		when(itemManager.getItemComposition(2)).thenReturn(burntLobster);
+		when(itemManager.getImage(eq(0), anyInt(), anyBoolean())).thenReturn(coinsIcon);
+		when(itemManager.getImage(eq(2), anyInt(), anyBoolean())).thenReturn(burntLobsterIcon);
+		when(itemManager.getItemPrice(0)).thenReturn(1);
+		when(itemManager.getItemPrice(2)).thenReturn(100);
+	}
 
-    @Test
-    public void testStartup_ifNotLoggedIn_displayNoData() throws Exception {
-        when(client.getGameState()).thenReturn(GameState.LOGIN_SCREEN);
+	@Test
+	public void testStartup_ifNotLoggedIn_displayNoData() throws Exception
+	{
+		when(client.getGameState()).thenReturn(GameState.LOGIN_SCREEN);
 
-        currentBankPanelController.startUp(panel);
+		currentBankPanelController.startUp(panel);
 
-        waitForEdtQueueToEmpty();
-        verify(panel).displayNoDataMessage();
-    }
+		waitForEdtQueueToEmpty();
+		verify(panel).displayNoDataMessage();
+	}
 
-    @Test
-    public void testStartup_ifLoggedInButNoDataForAccount_displayNoData() throws Exception {
-        when(client.getGameState()).thenReturn(GameState.LOGGED_IN);
-        when(client.getUsername()).thenReturn("MrSam");
-        when(dataStore.getDataForCurrentBank("MrSam")).thenReturn(Optional.empty());
+	@Test
+	public void testStartup_ifLoggedInButNoDataForAccount_displayNoData() throws Exception
+	{
+		when(client.getGameState()).thenReturn(GameState.LOGGED_IN);
+		when(client.getUsername()).thenReturn("MrSam");
+		when(dataStore.getDataForCurrentBank("MrSam")).thenReturn(Optional.empty());
 
-        currentBankPanelController.startUp(panel);
+		currentBankPanelController.startUp(panel);
 
-        waitForEdtQueueToEmpty();
-        verify(panel).displayNoDataMessage();
-    }
+		waitForEdtQueueToEmpty();
+		verify(panel).displayNoDataMessage();
+	}
 
-//    @Test
-//    public void testStartup_ifLoggedInAndDataAvailable_displayAccountData() throws Exception {
-//        when(client.getGameState()).thenReturn(GameState.LOGGED_IN);
-//        when(client.getUsername()).thenReturn("MrSam");
-//        when(dataStore.getDataForCurrentBank(BankWorldType.DEFAULT, "MrSam")).thenReturn(Optional.of(
-//                new BankSave(BankWorldType.DEFAULT, "MrSam", "My Bank", "Tuesday",
-//                        ImmutableList.of(new BankItem(0, 100), new BankItem(2, 666)))));
-//
-//        currentBankPanelController.startUp(panel);
-//
-//        waitForEdtQueueToEmpty();
-//        verify(panel).updateTimeDisplay("Tuesday");
-//        verify(panel).displayItemListings(eq(list(
-//                new ItemListEntry("Coins", 100, coinsIcon, 100, 100),
-//                new ItemListEntry("Burnt lobster", 666, burntLobsterIcon, 66600, 6660))),
-//                eq(true));
-//    }
+	//    @Test
+	//    public void testStartup_ifLoggedInAndDataAvailable_displayAccountData() throws Exception {
+	//        when(client.getGameState()).thenReturn(GameState.LOGGED_IN);
+	//        when(client.getUsername()).thenReturn("MrSam");
+	//        when(dataStore.getDataForCurrentBank(BankWorldType.DEFAULT, "MrSam")).thenReturn(Optional.of(
+	//                new BankSave(BankWorldType.DEFAULT, "MrSam", "My Bank", "Tuesday",
+	//                        ImmutableList.of(new BankItem(0, 100), new BankItem(2, 666)))));
+	//
+	//        currentBankPanelController.startUp(panel);
+	//
+	//        waitForEdtQueueToEmpty();
+	//        verify(panel).updateTimeDisplay("Tuesday");
+	//        verify(panel).displayItemListings(eq(list(
+	//                new ItemListEntry("Coins", 100, coinsIcon, 100, 100),
+	//                new ItemListEntry("Burnt lobster", 666, burntLobsterIcon, 66600, 6660))),
+	//                eq(true));
+	//    }
 
-//    @Test
-//    public void testHandleBankSave_ifItemDataHasNotChangedThenOnlyUpdateTime() throws Exception {
-//        when(client.getGameState()).thenReturn(GameState.LOGGED_IN);
-//        when(client.getUsername()).thenReturn("MrSam");
-//        BankSave mondaySave = new BankSave(BankWorldType.DEFAULT, "MrSam", "My Bank", "Monday",
-//                ImmutableList.of(new BankItem(0, 100), new BankItem(2, 666)));
-//        BankSave tuesdaySave = new BankSave(BankWorldType.DEFAULT, "MrSam", "My Bank", "Tuesday", mondaySave.getItemData());
-//        currentBankPanelController.startUp(panel);
-//
-//        verify(panel, never()).updateTimeDisplay(any());
-//        verify(panel, never()).displayItemListings(any(), anyBoolean());
-//
-//        currentBankPanelController.handleBankSave(mondaySave);
-//
-//        waitForEdtQueueToEmpty();
-//        verify(panel).updateTimeDisplay("Monday");
-//        verify(panel, times(1)).displayItemListings(eq(list(
-//                new ItemListEntry("Coins", 100, coinsIcon, 100, 100),
-//                new ItemListEntry("Burnt lobster", 666, burntLobsterIcon, 66600, 6660))),
-//                eq(true));
-//
-//        currentBankPanelController.handleBankSave(tuesdaySave);
-//
-//        waitForEdtQueueToEmpty();
-//        verify(panel).updateTimeDisplay("Tuesday");
-//        verify(panel, times(1)).displayItemListings(any(), anyBoolean());
-//    }
+	//    @Test
+	//    public void testHandleBankSave_ifItemDataHasNotChangedThenOnlyUpdateTime() throws Exception {
+	//        when(client.getGameState()).thenReturn(GameState.LOGGED_IN);
+	//        when(client.getUsername()).thenReturn("MrSam");
+	//        BankSave mondaySave = new BankSave(BankWorldType.DEFAULT, "MrSam", "My Bank", "Monday",
+	//                ImmutableList.of(new BankItem(0, 100), new BankItem(2, 666)));
+	//        BankSave tuesdaySave = new BankSave(BankWorldType.DEFAULT, "MrSam", "My Bank", "Tuesday", mondaySave.getItemData());
+	//        currentBankPanelController.startUp(panel);
+	//
+	//        verify(panel, never()).updateTimeDisplay(any());
+	//        verify(panel, never()).displayItemListings(any(), anyBoolean());
+	//
+	//        currentBankPanelController.handleBankSave(mondaySave);
+	//
+	//        waitForEdtQueueToEmpty();
+	//        verify(panel).updateTimeDisplay("Monday");
+	//        verify(panel, times(1)).displayItemListings(eq(list(
+	//                new ItemListEntry("Coins", 100, coinsIcon, 100, 100),
+	//                new ItemListEntry("Burnt lobster", 666, burntLobsterIcon, 66600, 6660))),
+	//                eq(true));
+	//
+	//        currentBankPanelController.handleBankSave(tuesdaySave);
+	//
+	//        waitForEdtQueueToEmpty();
+	//        verify(panel).updateTimeDisplay("Tuesday");
+	//        verify(panel, times(1)).displayItemListings(any(), anyBoolean());
+	//    }
 
-    private static ItemComposition mockItemComposition(String name, int haValue) {
-        ItemComposition item = mock(ItemComposition.class);
-        when(item.getName()).thenReturn(name);
-        when(item.getHaPrice()).thenReturn(haValue);
-        return item;
-    }
+	private static ItemComposition mockItemComposition(String name, int haValue)
+	{
+		ItemComposition item = mock(ItemComposition.class);
+		when(item.getName()).thenReturn(name);
+		when(item.getHaPrice()).thenReturn(haValue);
+		return item;
+	}
 
-    private static void waitForEdtQueueToEmpty() throws Exception {
-        SwingUtilities.invokeAndWait(() -> { /* Do nothing */ });
-    }
+	private static void waitForEdtQueueToEmpty() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> { /* Do nothing */ });
+	}
 
-    private static List<ItemListEntry> list(ItemListEntry... items) {
-        return Lists.newArrayList(items);
-    }
+	private static List<ItemListEntry> list(ItemListEntry... items)
+	{
+		return Lists.newArrayList(items);
+	}
 }

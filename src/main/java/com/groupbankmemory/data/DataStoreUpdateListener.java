@@ -1,9 +1,10 @@
 package com.groupbankmemory.data;
 
-public interface DataStoreUpdateListener {
-    void currentBanksListChanged();
+public interface DataStoreUpdateListener
+{
+	void currentBanksListChanged();
 
-    void snapshotBanksListChanged();
+	void snapshotBanksListChanged();
 
-    void displayNameMapUpdated();
+	void displayNameMapUpdated();
 }

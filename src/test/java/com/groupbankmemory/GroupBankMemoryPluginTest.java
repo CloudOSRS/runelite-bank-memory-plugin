@@ -28,58 +28,67 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class GroupBankMemoryPluginTest
 {
-    @Mock @Bind private ClientToolbar clientToolbar;
-    @Mock @Bind private Client client;
-    @Mock @Bind private ClientThread clientThread;
-    @Mock @Bind private ItemManager itemManager;
-    @Mock @Bind private PluginDataStore pluginDataStore;
-    @Mock private CurrentBankPanelController currentBankPanelController;
-    @Mock private SavedBanksPanelController savedBanksPanelController;
-    @Mock private BankMemoryPluginPanel pluginPanel;
-    @Mock private Injector pluginInjector;
+	@Mock @Bind private ClientToolbar clientToolbar;
+	@Mock @Bind private Client client;
+	@Mock @Bind private ClientThread clientThread;
+	@Mock @Bind private ItemManager itemManager;
+	@Mock @Bind private PluginDataStore pluginDataStore;
+	@Mock private CurrentBankPanelController currentBankPanelController;
+	@Mock private SavedBanksPanelController savedBanksPanelController;
+	@Mock private BankMemoryPluginPanel pluginPanel;
+	@Mock private Injector pluginInjector;
 
-    @Inject private TestGroupBankMemoryPlugin bankMemoryPlugin;
+	@Inject private TestGroupBankMemoryPlugin bankMemoryPlugin;
 
-    @Before
-    public void before() {
-        Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
-        bankMemoryPlugin.setInjector(pluginInjector);
-        when(pluginInjector.getInstance(BankMemoryPluginPanel.class)).thenReturn(pluginPanel);
-        when(pluginInjector.getInstance(CurrentBankPanelController.class)).thenReturn(currentBankPanelController);
-        when(pluginInjector.getInstance(SavedBanksPanelController.class)).thenReturn(savedBanksPanelController);
-        when(pluginPanel.getSavedBanksTopPanel()).thenReturn(mock(BankSavesTopPanel.class));
-    }
-
-    @Test
-    public void testStartup_startsCurrentBankControllerOnClientThread() throws Exception {
-        ArgumentCaptor<Runnable> ac = ArgumentCaptor.forClass(Runnable.class);
-
-        SwingUtilities.invokeAndWait(noCatch(bankMemoryPlugin::startUp));
-
-        verify(clientThread).invokeLater(ac.capture());
-        verify(currentBankPanelController, never()).startUp(any());
-        ac.getValue().run();
-        verify(currentBankPanelController).startUp(pluginPanel.getCurrentBankViewPanel());
-    }
-
-    private static Runnable noCatch(ThrowingRunnable throwingRunnable) {
-        return () -> {
-            try {
-                throwingRunnable.run();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    private static class TestGroupBankMemoryPlugin extends GroupBankMemoryPlugin
+	@Before
+	public void before()
 	{
-        void setInjector(Injector injector) {
-            this.injector = injector;
-        }
-    }
+		Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
+		bankMemoryPlugin.setInjector(pluginInjector);
+		when(pluginInjector.getInstance(BankMemoryPluginPanel.class)).thenReturn(pluginPanel);
+		when(pluginInjector.getInstance(CurrentBankPanelController.class)).thenReturn(currentBankPanelController);
+		when(pluginInjector.getInstance(SavedBanksPanelController.class)).thenReturn(savedBanksPanelController);
+		when(pluginPanel.getSavedBanksTopPanel()).thenReturn(mock(BankSavesTopPanel.class));
+	}
 
-    private interface ThrowingRunnable {
-        void run() throws Exception;
-    }
+	@Test
+	public void testStartup_startsCurrentBankControllerOnClientThread() throws Exception
+	{
+		ArgumentCaptor<Runnable> ac = ArgumentCaptor.forClass(Runnable.class);
+
+		SwingUtilities.invokeAndWait(noCatch(bankMemoryPlugin::startUp));
+
+		verify(clientThread).invokeLater(ac.capture());
+		verify(currentBankPanelController, never()).startUp(any());
+		ac.getValue().run();
+		verify(currentBankPanelController).startUp(pluginPanel.getCurrentBankViewPanel());
+	}
+
+	private static Runnable noCatch(ThrowingRunnable throwingRunnable)
+	{
+		return () ->
+		{
+			try
+			{
+				throwingRunnable.run();
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		};
+	}
+
+	private static class TestGroupBankMemoryPlugin extends GroupBankMemoryPlugin
+	{
+		void setInjector(Injector injector)
+		{
+			this.injector = injector;
+		}
+	}
+
+	private interface ThrowingRunnable
+	{
+		void run() throws Exception;
+	}
 }

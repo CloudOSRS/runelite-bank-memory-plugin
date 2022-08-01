@@ -30,11 +30,13 @@ public class GroupBankSave
 		this.bankSaves = bankSaves;
 	}
 
-	public void addToBankSaves(BankSave newSave) {
+	public void addToBankSaves(BankSave newSave)
+	{
 		bankSaves.add(newSave);
 	}
 
-	public static GroupBankSave snapshotFromExistingBank(String newName, GroupBankSave existingBank) {
+	public static GroupBankSave snapshotFromExistingBank(String newName, GroupBankSave existingBank)
+	{
 		Objects.requireNonNull(newName);
 		return new GroupBankSave(
 			existingBank.userName,
@@ -42,9 +44,11 @@ public class GroupBankSave
 			existingBank.bankSaves);
 	}
 
-	public static GroupBankSave cleanItemData(GroupBankSave existingBank) {
+	public static GroupBankSave cleanItemData(GroupBankSave existingBank)
+	{
 		Objects.requireNonNull(existingBank);
-		if (existingBank.bankSaves == null) {
+		if (existingBank.bankSaves == null)
+		{
 			return existingBank;
 		}
 

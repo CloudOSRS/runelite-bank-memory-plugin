@@ -17,8 +17,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class FilterableItemListModelTest {
-
+public class FilterableItemListModelTest
+{
     private static final ItemListEntry dragonScimitar = item("Dragon Scimitar");
     private static final ItemListEntry runeAxe = item("Rune axe");
     private static final ItemListEntry runeDagger = item("Rune dagger");
@@ -31,7 +31,8 @@ public class FilterableItemListModelTest {
     private static final ItemListEntry petKitten = item("Pet kitten");
 
     @Test
-    public void testGetElementAt_givenNoFilter() {
+    public void testGetElementAt_givenNoFilter()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
 
@@ -52,7 +53,8 @@ public class FilterableItemListModelTest {
     }
 
     @Test
-    public void testGetElementAt_givenFilterApplied() {
+    public void testGetElementAt_givenFilterApplied()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
         model.applyFilter("RuNe");
@@ -64,7 +66,8 @@ public class FilterableItemListModelTest {
     }
 
     @Test
-    public void testGetElementAt_givenFilterRemoved() {
+    public void testGetElementAt_givenFilterRemoved()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
         model.applyFilter("rUnE");
@@ -85,7 +88,8 @@ public class FilterableItemListModelTest {
     }
 
     @Test
-    public void testGetElementAt_givenFilterAppliedAndNewContentsSet() {
+    public void testGetElementAt_givenFilterAppliedAndNewContentsSet()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
         model.applyFilter("dRaGOn");
@@ -101,7 +105,8 @@ public class FilterableItemListModelTest {
     }
 
     @Test
-    public void testGetAdjustedIndex() {
+    public void testGetAdjustedIndex()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
         assertThat(model.getSize(), is(5));
@@ -131,33 +136,41 @@ public class FilterableItemListModelTest {
     }
 
     @Test
-    public void testGetAdjustedIndex_givenIndexBelowZero() {
+    public void testGetAdjustedIndex_givenIndexBelowZero()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
 
-        try {
+        try
+		{
             model.getAdjustedIndex(-1);
             fail();
-        } catch (IndexOutOfBoundsException ex) {
+        }
+		catch (IndexOutOfBoundsException ex)
+		{
             assertThat(ex.getMessage(), is("index (-1) must not be negative"));
         }
     }
 
     @Test
-    public void testGetAdjustedIndex_givenIndexAboveRawContentsMaxIndex() {
+    public void testGetAdjustedIndex_givenIndexAboveRawContentsMaxIndex()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
 
-        try {
+        try
+		{
             model.getAdjustedIndex(100000);
             fail();
-        } catch (IndexOutOfBoundsException ex) {
+        }
+		catch (IndexOutOfBoundsException ex) {
             assertThat(ex.getMessage(), is("index (100000) must be less than size (5)"));
         }
     }
 
     @Test
-    public void testSetListContents_notifiesOffListeners() {
+    public void testSetListContents_notifiesOffListeners()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         ListDataListener listener1 = mock(ListDataListener.class);
         ListDataListener listener2 = mock(ListDataListener.class);
@@ -174,7 +187,8 @@ public class FilterableItemListModelTest {
     }
 
     @Test
-    public void testApplyFilter_notifiesListenersOnlyIfEffectIsDifferent() {
+    public void testApplyFilter_notifiesListenersOnlyIfEffectIsDifferent()
+	{
         FilterableItemListModel model = new FilterableItemListModel();
         model.setListContents(list(dragonScimitar, runeAxe, runeDagger, magicStaff, airRune));
         ListDataListener listener1 = mock(ListDataListener.class);
@@ -198,11 +212,13 @@ public class FilterableItemListModelTest {
         verifyNoMoreInteractions(listener1, listener2);
     }
 
-    private static ItemListEntry item(String name) {
+    private static ItemListEntry item(String name)
+	{
         return new ItemListEntry(name, 1, new AsyncBufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), 1, 1);
     }
 
-    private static List<ItemListEntry> list(ItemListEntry... items) {
+    private static List<ItemListEntry> list(ItemListEntry... items)
+	{
         return Lists.newArrayList(items);
     }
 }

@@ -11,33 +11,36 @@ import net.runelite.client.ui.components.materialtabs.MaterialTabGroup;
 
 import static com.groupbankmemory.util.Constants.PAD;
 
-class BankMemoryPluginPanel extends PluginPanel {
+class BankMemoryPluginPanel extends PluginPanel
+{
+	private final BankViewPanel currentBankViewPanel = new BankViewPanel();
+	private final BankSavesTopPanel savedBanksTopPanel = new BankSavesTopPanel();
 
-    private final BankViewPanel currentBankViewPanel = new BankViewPanel();
-    private final BankSavesTopPanel savedBanksTopPanel = new BankSavesTopPanel();
+	protected BankMemoryPluginPanel()
+	{
+		super(false);
+		setBorder(BorderFactory.createEmptyBorder(PAD, PAD, PAD, PAD));
 
-    protected BankMemoryPluginPanel() {
-        super(false);
-        setBorder(BorderFactory.createEmptyBorder(PAD, PAD, PAD, PAD));
+		JPanel displayPanel = new JPanel();
+		MaterialTabGroup tabGroup = new MaterialTabGroup(displayPanel);
+		MaterialTab currentBankTab = new MaterialTab("Current bank", tabGroup, currentBankViewPanel);
+		MaterialTab savesListTab = new MaterialTab("Saved banks", tabGroup, savedBanksTopPanel);
+		tabGroup.addTab(currentBankTab);
+		tabGroup.addTab(savesListTab);
+		tabGroup.select(currentBankTab);
 
-        JPanel displayPanel = new JPanel();
-        MaterialTabGroup tabGroup = new MaterialTabGroup(displayPanel);
-        MaterialTab currentBankTab = new MaterialTab("Current bank", tabGroup, currentBankViewPanel);
-        MaterialTab savesListTab = new MaterialTab("Saved banks", tabGroup, savedBanksTopPanel);
-        tabGroup.addTab(currentBankTab);
-        tabGroup.addTab(savesListTab);
-        tabGroup.select(currentBankTab);
+		setLayout(new BorderLayout());
+		add(tabGroup, BorderLayout.NORTH);
+		add(displayPanel, BorderLayout.CENTER);
+	}
 
-        setLayout(new BorderLayout());
-        add(tabGroup, BorderLayout.NORTH);
-        add(displayPanel, BorderLayout.CENTER);
-    }
+	BankViewPanel getCurrentBankViewPanel()
+	{
+		return currentBankViewPanel;
+	}
 
-    BankViewPanel getCurrentBankViewPanel() {
-        return currentBankViewPanel;
-    }
-
-    BankSavesTopPanel getSavedBanksTopPanel() {
-        return savedBanksTopPanel;
-    }
+	BankSavesTopPanel getSavedBanksTopPanel()
+	{
+		return savedBanksTopPanel;
+	}
 }
