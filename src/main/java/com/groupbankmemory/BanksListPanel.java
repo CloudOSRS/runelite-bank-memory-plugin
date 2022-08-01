@@ -34,14 +34,12 @@ public class BanksListPanel extends JPanel {
 
     private final PluginErrorPanel noDataMessage;
     private final JPanel listPanel;
-    private final JPopupMenu bankEntryContextMenu;
     private final ListEntryMouseListener mouseListener;
     private BanksListInteractionListener interactionListener;
 
     public BanksListPanel() {
         super();
         mouseListener = new ListEntryMouseListener();
-        bankEntryContextMenu = createContextMenu();
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(Constants.PAD, 0, Constants.PAD, 0));
@@ -55,48 +53,6 @@ public class BanksListPanel extends JPanel {
         listWrapper.add(listPanel, BorderLayout.NORTH);
         JScrollPane scrollPane = new JScrollPane(listWrapper);
         add(scrollPane, BorderLayout.CENTER);
-
-        JButton compareBanks = new JButton("Compare bank saves");
-        compareBanks.addActionListener(a -> interactionListener.openBanksDiffPanel());
-        add(compareBanks, BorderLayout.SOUTH);
-    }
-
-    private JPopupMenu createContextMenu() {
-        JPopupMenu menu = new JPopupMenu();
-        menu.add(createMenuSaveAsAction(menu));
-        menu.add(createMenuCopyItemDataToClipboardAction(menu));
-        menu.add(createMenuDeleteAction(menu));
-        return menu;
-    }
-
-    private Action createMenuSaveAsAction(JPopupMenu menu) {
-        return new AbstractAction(SAVE_SNAPSHOT) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String inputName;
-                do {
-                    inputName = JOptionPane.showInputDialog(
-                            BanksListPanel.this, "Enter name for new bank snapshot:", "Save Snapshot As", JOptionPane.PLAIN_MESSAGE);
-                    if (inputName == null) {
-                        return;
-                    }
-                    inputName = inputName.trim();
-                } while (inputName.isEmpty());
-
-                BanksListEntry save = ((EntryPanel) menu.getInvoker()).entry;
-                interactionListener.saveBankAs(save, inputName);
-            }
-        };
-    }
-
-    private Action createMenuCopyItemDataToClipboardAction(JPopupMenu menu) {
-        return new AbstractAction(Constants.ACTION_COPY_ITEM_DATA_TO_CLIPBOARD) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BanksListEntry save = ((EntryPanel) menu.getInvoker()).entry;
-                interactionListener.copyBankSaveItemDataToClipboard(save);
-            }
-        };
     }
 
     private Action createMenuDeleteAction(JPopupMenu menu) {
@@ -156,7 +112,6 @@ public class BanksListPanel extends JPanel {
             setBackground(ColorScheme.DARKER_GRAY_COLOR);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             setToolTipText(entry.getDateTime());
-            setComponentPopupMenu(bankEntryContextMenu);
 
             GridBagConstraints c = new GridBagConstraints();
             c.gridx = 0;

@@ -36,26 +36,12 @@ public class CurrentBankPanelController {
         assert client.isClientThread();
 
         this.panel = panel;
-        SwingUtilities.invokeLater(this::setPopupMenuActionOnBankView);
 
         if (client.getGameState() == GameState.LOGGED_IN) {
             updateDisplayForCurrentAccount();
         } else {
             SwingUtilities.invokeLater(panel::displayNoDataMessage);
         }
-    }
-
-    private void setPopupMenuActionOnBankView() {
-        this.panel.setItemListPopupMenuAction(new CopyItemsToClipboardAction(clientThread, itemManager) {
-            @Nullable
-            @Override
-            public BankSave getBankItemData() {
-                if (latestDisplayedData == null) {
-                    log.error("Tried to copy CSV data to clipboard before any current bank shown");
-                }
-                return latestDisplayedData;
-            }
-        });
     }
 
     public void onGameStateChanged(GameStateChanged gameStateChanged) {

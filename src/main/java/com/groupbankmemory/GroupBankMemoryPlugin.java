@@ -41,7 +41,6 @@ public class GroupBankMemoryPlugin extends Plugin {
 
     private CurrentBankPanelController currentBankPanelController;
     private SavedBanksPanelController savedBanksPanelController;
-    private BankDiffPanelController diffPanelController;
 
     private NavigationButton navButton;
     private boolean displayNameRegistered = false;
@@ -70,18 +69,14 @@ public class GroupBankMemoryPlugin extends Plugin {
 
         savedBanksPanelController = injector.getInstance(SavedBanksPanelController.class);
         savedBanksPanelController.startUp(pluginPanel.getSavedBanksTopPanel());
-        diffPanelController = injector.getInstance(BankDiffPanelController.class);
-        diffPanelController.startUp(pluginPanel.getSavedBanksTopPanel().getDiffPanel());
     }
 
     @Override
     protected void shutDown() {
         clientToolbar.removeNavigation(navButton);
         savedBanksPanelController.shutDown();
-        diffPanelController.shutDown();
         currentBankPanelController = null;
         savedBanksPanelController = null;
-        diffPanelController = null;
     }
 
     @Subscribe

@@ -42,8 +42,6 @@ public class SavedBanksPanelController {
         topPanel.displayBanksListPanel();
         updateCurrentBanksList();
 
-        setPopupMenuActionOnBankView();
-
         dataStoreListener = new DataStoreListener();
         dataStore.addListener(dataStoreListener);
     }
@@ -72,46 +70,6 @@ public class SavedBanksPanelController {
         }
     }
 
-    private void setPopupMenuActionOnBankView() {
-        topPanel.getBankViewPanel().setItemListPopupMenuAction(new CopyItemsToClipboardAction(clientThread, itemManager) {
-            @Nullable
-            @Override
-            public BankSave getBankItemData() {
-                if (bankForClipboardAction == null) {
-                    log.error("Tried to copy CSV data to clipboard before any bank save has been opened");
-                }
-                return bankForClipboardAction;
-            }
-        });
-    }
-
-    private void openSavedBank(BanksListEntry selected) {
-        assert client.isClientThread();
-
-//        Optional<BankSave> save = dataStore.getBankSaveWithId(selected.getSaveId());
-//        if (!save.isPresent()) {
-//            log.error("Selected missing bank save: {}", selected);
-//            workingToOpenBank.set(false);
-//            return;
-//        }
-//        BankSave foundSave = save.get();
-//
-//        List<ItemListEntry> items = new ArrayList<>();
-//
-//        for (BankItem i : foundSave.getItemData()) {
-//            ItemComposition ic = itemManager.getItemComposition(i.getItemId());
-//            AsyncBufferedImage icon = itemManager.getImage(i.getItemId(), i.getQuantity(), i.getQuantity() > 1);
-//            int geValue = itemManager.getItemPrice(i.getItemId()) * i.getQuantity();
-//            int haValue = ic.getHaPrice() * i.getQuantity();
-//            items.add(new ItemListEntry(ic.getName(), i.getQuantity(), icon, geValue, haValue));
-//        }
-//        SwingUtilities.invokeLater(() -> {
-//            workingToOpenBank.set(false);
-//            bankForClipboardAction = foundSave;
-//            topPanel.displaySavedBankData(selected.getSaveName(), items, foundSave.getDateTimeString());
-//        });
-    }
-
     public void shutDown() {
         dataStore.removeListener(dataStoreListener);
     }
@@ -123,37 +81,11 @@ public class SavedBanksPanelController {
                 return;
             }
             workingToOpenBank.set(true);
-            clientThread.invokeLater(() -> openSavedBank(save));
         }
 
         @Override
         public void selectedToDelete(BanksListEntry save) {
             dataStore.deleteBankSaveWithId(save.getSaveId());
-        }
-
-        @Override
-        public void saveBankAs(BanksListEntry save, String saveName) {
-//            Optional<BankSave> existingSave = dataStore.getBankSaveWithId(save.getSaveId());
-//            if (existingSave.isPresent()) {
-//                dataStore.saveAsSnapshotBank(saveName, existingSave.get());
-//            } else {
-//                log.error("Tried to 'Save As' missing bank save: {}", save);
-//            }
-        }
-
-        @Override
-        public void copyBankSaveItemDataToClipboard(BanksListEntry save) {
-//            Optional<BankSave> existingSave = dataStore.getBankSaveWithId(save.getSaveId());
-//            if (existingSave.isPresent()) {
-//                ClipboardActions.copyItemDataAsTsvToClipboardOnClientThread(clientThread, itemManager, existingSave.get().getItemData());
-//            } else {
-//                log.error("Tried to copy CSV data to clipboard for missing bank save: {}", save);
-//            }
-        }
-
-        @Override
-        public void openBanksDiffPanel() {
-            topPanel.showBankDiffPanel();
         }
     }
 

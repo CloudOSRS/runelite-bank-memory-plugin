@@ -26,7 +26,6 @@ public class BankSavesTopPanel extends JPanel {
 
     private final BanksListPanel banksListPanel = new BanksListPanel();
     private final BankViewPanel bankViewPanel = new BankViewPanel();
-    private final BankDiffPanel bankDiffPanel = new BankDiffPanel();
     private final JPanel backButtonAndTitle = new JPanel();
     private final JLabel subUiTitle = new JLabel();
 
@@ -74,15 +73,10 @@ public class BankSavesTopPanel extends JPanel {
         return bankViewPanel;
     }
 
-    public BankDiffPanel getDiffPanel() {
-        return bankDiffPanel;
-    }
-
     void showBankDiffPanel() {
         removeAll();
         subUiTitle.setText("Bank comparison");
         add(backButtonAndTitle, BorderLayout.NORTH);
-        add(bankDiffPanel, BorderLayout.CENTER);
         revalidate();
         repaint();
     }

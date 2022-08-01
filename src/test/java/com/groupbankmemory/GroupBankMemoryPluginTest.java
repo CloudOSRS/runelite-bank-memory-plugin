@@ -35,7 +35,6 @@ public class GroupBankMemoryPluginTest
     @Mock @Bind private PluginDataStore pluginDataStore;
     @Mock private CurrentBankPanelController currentBankPanelController;
     @Mock private SavedBanksPanelController savedBanksPanelController;
-    @Mock private BankDiffPanelController bankDiffPanelController;
     @Mock private BankMemoryPluginPanel pluginPanel;
     @Mock private Injector pluginInjector;
 
@@ -48,7 +47,6 @@ public class GroupBankMemoryPluginTest
         when(pluginInjector.getInstance(BankMemoryPluginPanel.class)).thenReturn(pluginPanel);
         when(pluginInjector.getInstance(CurrentBankPanelController.class)).thenReturn(currentBankPanelController);
         when(pluginInjector.getInstance(SavedBanksPanelController.class)).thenReturn(savedBanksPanelController);
-        when(pluginInjector.getInstance(BankDiffPanelController.class)).thenReturn(bankDiffPanelController);
         when(pluginPanel.getSavedBanksTopPanel()).thenReturn(mock(BankSavesTopPanel.class));
     }
 
